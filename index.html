@@ -112,7 +112,27 @@
 
     loadLeaderboard()
   }
+<hr>
 
+<h3>Calculator</h3>
+
+<input id="divideInput" type="number" placeholder="divide 100 by...">
+<button onclick="divide100()">Calculate</button>
+
+<p id="result"></p>
+  function divide100() {
+  const value = parseFloat(document.getElementById("divideInput").value)
+
+  if (!value || value === 0) {
+    document.getElementById("result").textContent = "Invalid number"
+    return
+  }
+
+  const result = 100 / value
+
+  document.getElementById("result").textContent =
+    "100 ÷ " + value + " = " + result
+}
   // ======================
   // BUTTONS
   // ======================
