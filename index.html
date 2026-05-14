@@ -1,14 +1,17 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Leaderboard</title>
-</head>
-<body>
-
-<h1>Leaderboard</h1>
-<div id="list"></div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<div>
+  <input id="user" placeholder="username">
+  <input id="pass" type="password" placeholder="password">
+
+  <button id="signup">signup</button>
+  <button id="login">login</button>
+</div>
+
+<hr>
+
+<h3>Leaderboard</h3>
+<div id="board"></div>
 
 <script>
   const supabase = window.supabase.createClient(
@@ -16,25 +19,112 @@
     "YOUR_ANON_KEY"
   )
 
+  // 🔐 ADMIN PASSWORD (change this)
+  const ADMIN_PASSWORD = "69brilliant69"
+
+  function usernameToEmail(username) {
+    return username.toLowerCase().trim() + "@game.local"
+  }
+
+  // ======================
+  // AUTH
+  // ======================
+
+  async function signUp() {
+    const username = document.getElementById("user").value
+    const password = document.getElementById("pass").value
+    const email = usernameToEmail(username)
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password
+    })
+
+    console.log("SIGNUP:", data, error)
+  }
+
+  async function login() {
+    const username = document.getElementById("user").value
+    const password = document.getElementById("pass").value
+    const email = usernameToEmail(username)
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    })
+
+    console.log("LOGIN:", data, error)
+
+    if (error) return
+
+    const user = data.user
+
+    // auto-add to leaderboard if not exists
+    await supabase.from("leaderboard").upsert([
+      {
+        user_id: user.id,
+        username: username,
+        score: 0,
+        team: "None"
+      }
+    ])
+  }
+
+  // ======================
+  // LEADERBOARD DISPLAY
+  // ======================
+
   async function loadLeaderboard() {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("leaderboard")
       .select("*")
       .order("score", { ascending: false })
 
-    const list = document.getElementById("list")
-    list.innerHTML = ""
+    const board = document.getElementById("board")
+    board.innerHTML = ""
 
-    data.forEach(player => {
-      const div = document.createElement("div")
-      div.textContent =
-  player.username + " [" + player.team + "] - " + player.score
-      list.appendChild(div)
+    data.forEach(p => {
+      const row = document.createElement("div")
+      row.textContent = `${p.username} [${p.team}] - ${p.score}`
+      board.appendChild(row)
     })
   }
 
-  loadLeaderboard()
-</script>
+  // ======================
+  // ADMIN SCORE CONTROL
+  // ======================
 
-</body>
-</html>
+  function isAdmin() {
+    const input = prompt("Admin password?")
+    return input === ADMIN_PASSWORD
+  }
+
+  async function setScore(username, newScore) {
+    if (!isAdmin()) {
+      alert("Not allowed")
+      return
+    }
+
+    await supabase
+      .from("leaderboard")
+      .update({ score: newScore })
+      .eq("username", username)
+
+    loadLeaderboard()
+  }
+
+  // ======================
+  // BUTTONS
+  // ======================
+
+  document.getElementById("signup").onclick = signUp
+  document.getElementById("login").onclick = login
+
+  // ======================
+  // AUTO LOAD
+  // ======================
+
+  loadLeaderboard()
+  setInterval(loadLeaderboard, 10000)
+
+</script>
