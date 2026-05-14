@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Leaderboard</title>
+</head>
+<body>
+
+<h1>Leaderboard</h1>
+<div id="list"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  const supabase = window.supabase.createClient(
+    "https://httksjwlsqelnbzxwnbx.supabase.co",
+    "YOUR_ANON_KEY"
+  )
+
+  async function loadLeaderboard() {
+    const { data, error } = await supabase
+      .from("leaderboard")
+      .select("*")
+      .order("score", { ascending: false })
+
+    const list = document.getElementById("list")
+    list.innerHTML = ""
+
+    data.forEach(player => {
+      const div = document.createElement("div")
+      div.textContent =
+  player.username + " [" + player.team + "] - " + player.score
+      list.appendChild(div)
+    })
+  }
+
+  loadLeaderboard()
+</script>
+
+</body>
+</html>
