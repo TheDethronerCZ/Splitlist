@@ -144,7 +144,14 @@
   // AUTO LOAD
   // ======================
 
-  loadLeaderboard()
-  setInterval(loadLeaderboard, 10000)
-
+  supabase
+  .channel('leaderboard-changes')
+  .on(
+    'postgres_changes',
+    { event: '*', schema: 'public', table: 'leaderboard' },
+    () => {
+      loadLeaderboard()
+    }
+  )
+  .subscribe()
 </script>
