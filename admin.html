@@ -34,4 +34,55 @@ function loadAdminPanel() {
 }
 
 checkAdmin()
+async function loadSubmissions() {
+
+  const { data } = await supabase
+    .from("submissions")
+    .select("*")
+    .eq("status", "pending")
+
+  const container = document.getElementById("submissions")
+  container.innerHTML = ""
+
+  data.forEach(s => {
+
+    const div = document.createElement("div")
+
+    div.innerHTML = `
+      <hr>
+      <p><b>User:</b> ${s.username}</p>
+      <p><b>Video:</b> <a href="${s.video}" target="_blank">open</a></p>
+      <p><b>Level ID:</b> ${s.levelid}</p>
+      <p><b>Creator:</b> ${s.creator}</p>
+
+      <button onclick="approveSubmission('${s.id}')">
+        Approve
+      </button>
+
+      <button onclick="rejectSubmission('${s.id}')">
+        Reject
+      </button>
+    `
+
+    container.appendChild(div)
+  })
+}
+async function approveSubmission(id) {
+
+  await supabase
+    .from("submissions")
+    .update({ status: "approved" })
+    .eq("id", id)
+
+  loadSubmissions()
+}
+async function rejectSubmission(id) {
+
+  await supabase
+    .from("submissions")
+    .update({ status: "rejected" })
+    .eq("id", id)
+
+  loadSubmissions()
+}
 </script>
