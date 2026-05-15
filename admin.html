@@ -1,0 +1,37 @@
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const supabase = window.supabase.createClient(
+  "https://httksjwlsqelnbzxwnbx.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0dGtzandsc3FlbG5ienh3bmJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NzMzOTMsImV4cCI6MjA5NDM0OTM5M30.g0DAR9RkOkKzJVt0G4vRemsmqfl1FA_2_mue7sNBNTk"
+)
+
+async function checkAdmin() {
+
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // not logged in
+  if (!user) {
+    document.body.innerHTML = "Not logged in"
+    return
+  }
+
+  // YOUR admin email
+  if (user.email !== "heraij@game.local") {
+    document.body.innerHTML = "Access denied"
+    return
+  }
+
+  // allowed
+  loadAdminPanel()
+}
+
+function loadAdminPanel() {
+  document.body.innerHTML = `
+    <h1>Admin Panel</h1>
+    <p>Welcome admin.</p>
+  `
+}
+
+checkAdmin()
+</script>
