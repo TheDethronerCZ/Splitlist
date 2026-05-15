@@ -31,23 +31,41 @@
   // AUTH
   // ======================
 
-  async function signUp() {
-    const username = document.getElementById("user").value
-    const password = document.getElementById("pass").value
-    const email = usernameToEmail(username)
+ async function signUp() {
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password
-    })
-if (error) {
-  alert(error.message)
-  return
-}
+  const username = document.getElementById("user").value
+  const password = document.getElementById("pass").value
+  const email = usernameToEmail(username)
 
-alert("Account created!")
-    console.log("SIGNUP:", data, error)
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password
+  })
+
+  console.log("SIGNUP:", data, error)
+
+  if (error) {
+    alert(error.message)
+    return
   }
+
+  const user = data.user
+
+  // add to leaderboard table
+  await supabase.from("leaderboard").upsert([
+    {
+      user_id: user.id,
+      username: username,
+      score: 0,
+      team: "None",
+      badges: "",
+      discord: "",
+      twitter: ""
+    }
+  ])
+
+  alert("Account created!")
+}
 
   async function login() {
 
