@@ -113,7 +113,12 @@ alert("Account created!")
 
     data.forEach(p => {
       const row = document.createElement("div")
-      row.textContent = `${p.username} [${p.team}] - ${p.score}`
+      row.innerHTML = `
+  <a href="profile.html?user=${p.username}">
+    ${p.username}
+  </a>
+  [${p.team}] - ${p.score}
+`
       board.appendChild(row)
     })
   }
