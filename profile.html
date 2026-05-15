@@ -1,0 +1,69 @@
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<h2>Account / Stats</h2>
+
+<div id="profile">
+  Loading...
+</div>
+<script>
+    const supabase = window.supabase.createClient(
+  "https://httksjwlsqelnbzxwnbx.supabase.co",
+  "YOUR_ANON_KEY"
+)
+
+async function getUserProfile() {
+  const { data: { user } } = await supabase.auth.getUser()
+}
+  if (!user) {
+    document.getElementById("profile").textContent = "Not logged in"
+    return
+  }
+  const { data } = await supabase
+    .from("leaderboard")
+    .select("*")
+    .eq("user_id", user.id)
+    .single()
+      const { data: all } = await supabase
+    .from("leaderboard")
+    .select("*")
+    .order("score", { ascending: false })
+
+  let rank = all.findIndex(p => p.user_id === user.id) + 1
+    document.getElementById("profile").innerHTML = `
+    <p><b>Username:</b> ${data.username}</p>
+    <p><b>Points:</b> ${data.score}</p>
+    <p><b>Rank:</b> #${rank}</p>
+    <p><b>Hardest completion:</b> ${data.team}</p>
+
+    <hr>
+
+    <p><b>Socials:</b></p>
+    <p>Discord: (add later)</p>
+    <p>Twitter: (add later)</p>
+  `
+getUserProfile()
+
+</script>
+<script>
+    async function addBadge(badgeName) {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  const { data } = await supabase
+    .from("leaderboard")
+    .select("badges")
+    .eq("user_id", user.id)
+    .single()
+
+  let badges = data.badges ? data.badges.split(",") : []
+
+  if (!badges.includes(badgeName)) {
+    badges.push(badgeName)
+
+    await supabase
+      .from("leaderboard")
+      .update({ badges: badges.join(",") })
+      .eq("user_id", user.id)
+  }
+}
+</script>
