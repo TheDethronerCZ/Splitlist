@@ -40,7 +40,12 @@
       email,
       password
     })
+if (error) {
+  alert(error.message)
+  return
+}
 
+alert("Account created!")
     console.log("SIGNUP:", data, error)
   }
 
