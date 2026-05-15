@@ -20,7 +20,7 @@
   )
 
   // ADMIN PASSWORD
-  const ADMIN_PASSWORD = "69brilliant69"
+  const ADMIN_PASSWORD = "yulookinere"
 
   function usernameToEmail(username) {
     return username.toLowerCase().trim() + "@game.local"
@@ -44,20 +44,42 @@
   }
 
   async function login() {
-    const username = document.getElementById("user").value
-    const password = document.getElementById("pass").value
-    const email = usernameToEmail(username)
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
+  const username = document.getElementById("user").value
+  const password = document.getElementById("pass").value
+  const email = usernameToEmail(username)
 
-    console.log("LOGIN:", data, error)
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  })
 
-    if (error) return
+  console.log("LOGIN:", data, error)
 
-    const user = data.user
+  if (error) return
+
+  const user = data.user
+
+  // auto-add to leaderboard
+  await supabase.from("leaderboard").upsert([
+    {
+      user_id: user.id,
+      username: username,
+      score: 0,
+      team: "None"
+    }
+  ])
+
+  // ADMIN REDIRECT
+  if (user.email === "heraij@game.local") {
+    window.location.href = "admin.html"
+  }
+
+  // NORMAL USER REDIRECT
+  else {
+    window.location.href = "profile.html"
+  }
+}
 
     // auto-add to leaderboard if not exists
     await supabase.from("leaderboard").upsert([
