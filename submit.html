@@ -1,0 +1,61 @@
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<h1>Submit Record</h1>
+
+<input id="video" placeholder="Video link">
+<br><br>
+
+<input id="levelid" placeholder="Level ID">
+<br><br>
+
+<input id="creator" placeholder="Creator">
+<br><br>
+
+<button id="submit">Submit</button>
+
+<p id="status"></p>
+
+<script>
+const supabase = window.supabase.createClient(
+  "https://httksjwlsqelnbzxwnbx.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0dGtzandsc3FlbG5ienh3bmJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NzMzOTMsImV4cCI6MjA5NDM0OTM5M30.g0DAR9RkOkKzJVt0G4vRemsmqfl1FA_2_mue7sNBNTk"
+)
+
+async function submitRecord() {
+
+  // check logged in user
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    document.getElementById("status").textContent = "You must log in"
+    return
+  }
+
+  const video = document.getElementById("video").value
+  const levelid = document.getElementById("levelid").value
+  const creator = document.getElementById("creator").value
+
+  const { error } = await supabase
+    .from("submissions")
+    .insert([
+      {
+        user_id: user.id,
+        username: user.email,
+        video: video,
+        levelid: levelid,
+        creator: creator
+      }
+    ])
+
+  if (error) {
+    document.getElementById("status").textContent = "Submission failed"
+    console.log(error)
+    return
+  }
+
+  document.getElementById("status").textContent = "Submission sent"
+}
+
+
+document.getElementById("submit").onclick = submitRecord
+</script>
